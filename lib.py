@@ -1,5 +1,6 @@
 import sys
 user_info ={}
+donation_list = [['나미야 집화점의 기적', '히가시노 게이고']]
 
 def login():
     login_input = input("0: 종료하기  1: 로그인  2: 회원가입 > ")
@@ -38,13 +39,13 @@ def main_screen():
         #반납기능 함수
         print("되나")
     elif select == '기증':
-        #기증기능 함수
-        print("되나")
+        donation()
     elif select == '나의정보':
         #나의정보기능 함수
         print("되나")
     else:
         print("다시 입력해주세요.")
 
-    
+def donation():
+    donat_book = input("기증한 책 정보를 입력해주세요. > ")  
 while 1 :login()
