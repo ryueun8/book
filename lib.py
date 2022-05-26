@@ -1,10 +1,13 @@
 import sys
+import random
+import os
+import time
 
 result=[] #검색결과 저장
 basket=[] #장바구니에 저장
 user_info =[]
 plus=0
-donation_list = [['나미야 집화점의 기적', '히가시노 게이고'], ['작별인사', '김영하'], ['불편한 편의점', '김호연']]
+donation_list = [['앨리스 죽이기', '코바야시 야스미'], ['거울나라의 앨리스', '루이스 캐럴'], ['앨리스 지금이야', '김종원']]
 BookList=[[1, '작별인사', '김영하', 1],
           [2, '이기적 유전자', '리처드 도킨스', 1],
           [3, '게놈 익스프레스', '조진호', 1],
@@ -46,7 +49,9 @@ def login():
         
         for i in range(5): 
             if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
-                print("로그인 되었습니다.") 
+                print("로그인 되었습니다.")
+                time.sleep(0.5)
+                os.system('clear') 
                 while 1 : main_screen()
             else:
                 break
@@ -75,12 +80,23 @@ def donation():
     while 1:
         global donation_list
         donate_check =0
-        donate_book = input("기증할 책 이름을 입력해주세요. > ")  
-        for i in range(3):
+        donate_book = input("기증할 책 이름을 입력해주세요. > ")
+
+        for i in range(len(donation_list)):
             if donation_list[i][0] == donate_book:
                 print("{0} 기증했습니다.".format(donation_list[i][0]))
-                donate_check += 1
+                donate_check += 1    
+                last_num = BookList[-1][0]
+                last_num += 1
+                BookList.append(donation_list[i])
+                BookList[-1].insert(0, last_num)    
+                BookList[-1].append('1')
+                del donation_list[i] #기증한 책 도네이션 리스트에서 삭제
+                print("책리스트 확인")
+                print(BookList)
+                print("끝")
                 break
+
         if donate_check == 0:
             print("다시입력해주세요.")  
             continue
@@ -153,7 +169,16 @@ def book_return():
         BookList[i][3] = 1
 
 def main_screen():
-    print("추천도서 : ")
+    i=random.randint(0,2)
+    j=random.randint(3,5)
+
+    print(" ")
+    print("------추천도서------ ")
+    print("{0:^14}".format(BookList[i][1]))
+    print("{0:^14}".format(BookList[j][1]))
+    print("--------------------")
+    print(" ")
+
     print("'조회', '대여', '반납', '기증', '나의정보'")
     select = input("원하는 기능을 입력해주세요. > ")
     if select == '조회':
@@ -162,7 +187,6 @@ def main_screen():
         rental()
     elif select == '반납':
         book_return()
-        #반납기능 함수
     elif select == '기증':
         donation()
     elif select == '나의정보':
