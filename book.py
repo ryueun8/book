@@ -3,11 +3,14 @@ import random
 import os
 import time
 
+save_book = []
+book_cnt = 0  
 result=[] #검색결과 저장
 basket=[] #장바구니에 저장
 user_info =[]
 plus=0
 donation_list = [['앨리스 죽이기', '코바야시 야스미'], ['거울나라의 앨리스', '루이스 캐럴'], ['앨리스 지금이야', '김종원']]
+#배열 마지막, 1:대여가능 2:대여중
 BookList=[[1, '작별인사', '김영하', 1],
           [2, '이기적 유전자', '리처드 도킨스', 1],
           [3, '게놈 익스프레스', '조진호', 1],
@@ -100,17 +103,28 @@ def donation():  #기증
         elif donate_check > 0:
             break
 
-def rental():                                #대여 함수
+def rental(): #대여 함수
+    global book_cnt                      
     print(basket)
-    user_input = str(input('대여하시겠습니까? y/n'))
+    user_input = str(input('대여하시겠습니까? y/n  > '))
     if user_input == 'y' or user_input == 'Y':
         for i in range(0, len(BookList)):
-            for j in range(0, len(basket)):
+            for j in range(0, len(basket)):  
                 if basket[j] == BookList[i][1]:
                     print(basket[j])
                     BookList[i][3] = 0
-                    print("대여완료")
-                    del basket[:]               
+                    for k in range(len(BookList)):
+                        if BookList[k][3] == 0:
+                            book_cnt += 1
+                    if book_cnt > 3:
+                        print(book_cnt)
+                        print("3권 이상 대여할 수 없습니다.")
+                        BookList[i][1] == 1
+                    else:
+                        print("대여완료")
+                        del basket[:] 
+        print(BookList)  
+
     elif user_input == 'n' or user_input == 'N':
         print('메인으로 돌아갑니다')
         return None
@@ -143,7 +157,7 @@ def SearchBookAuthor(user_input):                      #저자 조회 함수
 def ShoppingBasket():                                #장바구니 추가 함수
     print(result)
     while 1:
-        user_input = input('장바구니에 추가하시겠습니까? y/n ')
+        user_input = input('장바구니에 추가하시겠습니까? y/n > ')
         if user_input == 'y' or user_input == 'Y':
             basket.append(result[0])
             print(basket)  # 테스트
@@ -167,13 +181,15 @@ def menu():                                             #조회 함수
             print("잘못 입력하셨습나다.")
 
 def book_return():
+    global save_book
     return_choice = input("1. 책제목  2. 도서 고유번호  > ")
     if return_choice == '1':
         re_book = input("반납할 책의 제목을 입력해주세요. > ")
         for i in range(len(BookList)):
             if re_book == BookList[i][1]:
-                if BookList[i][3] == 0:
+                if BookList[i][3] == 0: #대여중인 책일때
                     print("반납되었습니다.")
+                    save_book.append(BookList[i][1])
                     BookList[i][3] = 1 
                 else:
                     print("대여중인 책이 아닙니다.")
@@ -185,10 +201,41 @@ def book_return():
             if re_book_num == BookList[i][0]:
                 if BookList[i][3] == 0:
                     print("반납되었습니다.")
+                    save_book.append(BookList[i][1])
                     BookList[i][3] = 1 
                 else:
                     print("대여중인 책이 아닙니다.")
                     break 
+
+def mine_info():
+    global save_book
+    print("=======나의정보=======")
+    print("대여중인 도서 리스트")
+    for i in range(len(BookList)):
+        if BookList[i][3] == 0:
+            print("-{0}".format(BookList[i][1]))
+    print("")
+    print("대여 후 반납한 도서 리스트")
+    print("-{0}\n".format(save_book))
+    print("연체 조회 정보")
+    print("연체된 책이 없습니다.")
+    print("")
+    user_input = input("정보 변경을 원하시나요? (y/n) >")
+    if user_input == 'y':
+        ID = input("ID를 입력해주세요. > ")
+        for i in range(len(user_info)):
+            if ID == user_info[i][0]:
+                change = input("비밀번호를 변경하시겠습니까. (y/n) > ")
+                if change == 'y':
+                    change_PW = input("변결할 PW > ")
+                    user_info[i][1] = change_PW
+                    print(user_info)
+                elif change == 'n':
+                    pass
+
+    elif user_input == 'n':
+        pass
+    print("======================")
 
 def main_screen():
     i=random.randint(0,2)
@@ -212,8 +259,7 @@ def main_screen():
     elif select == '기증':
         donation()
     elif select == '나의정보':
-        #나의정보기능 함수
-        print("되나")
+        mine_info()
     else:
         print("다시 입력해주세요.")
 
