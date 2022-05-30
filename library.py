@@ -42,9 +42,13 @@ def login():
         sys.exit(0)
 
     elif login_input == '1':    #로그인
+        
         print("ID,PW를 잊어버리셨으면 '분실'을 입력해주세요.")
         ID = input("ID를 입력해주세요 > ")
         PW = input("PW를 입력해주세요 > ")
+        cur.execute("SELECT userPW FROM userInfo where userID=?", (ID, ))
+        userPW = cur.fetchone()
+        #print(userPW) 테스트
         if ID == '분실' or PW == '분실':
             print("\n아이디, 패스워드 찾기")
             lose = input("전화번호를 입력해주세요. > ")
@@ -52,14 +56,24 @@ def login():
                 if lose == user_info[i][3]:
                     print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
         
-        for i in range(5): 
-            if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
-                print("로그인 되었습니다.")
-                time.sleep(0.5)
-                os.system('clear') 
-                while 1 : main_screen()
-            else:
-                break
+        if (PW,) == userPW:
+            print("로그인 되었습니다.")
+            time.sleep(0.5)
+            os.system('clear') 
+            while 1 : 
+                main_screen()
+        else:
+            print('잘못 입력하셨습니다')
+            time.sleep(1)
+            login()
+        # for i in range(5): 
+        #     if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
+        #         print("로그인 되었습니다.")
+        #         time.sleep(0.5)
+        #         os.system('clear') 
+        #         while 1 : main_screen()
+        #     else:
+        #         break
 
         if ID == '분실' or PW == '분실':
             print("\n아이디, 패스워드 찾기")
@@ -74,8 +88,8 @@ def login():
         phone = input("전화번호를 입력해주세요. > ")
         ID = input("ID를 입력해주세요 > ")
         PW = input("PW를 입력해주세요 > ")
-        # cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, phone, ID, PW))
-        # conn.commit()
+        cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, phone, ID, PW))
+        conn.commit()
         a = information()
         a.user_plus(ID, PW, name, phone)
 
