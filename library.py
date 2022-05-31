@@ -24,6 +24,8 @@ BookList=[[1, '작별인사', '김영하', 1],
 
 def login():
     cur.execute("SELECT * FROM userinfo")
+    user_info = cur.fetchall()
+    print(user_info)
 
     login_input = input("0: 종료하기  1: 로그인  2: 회원가입 > ")
     if login_input == '0':
@@ -32,30 +34,41 @@ def login():
     elif login_input == '1':    #로그인
         print("ID,PW를 잊어버리셨으면 '분실'을 입력해주세요.")
         ID = input("ID를 입력해주세요 > ")
-        PW = input("PW를 입력해주세요 > ")
-        if ID == '분실' or PW == '분실':
+
+        if ID == '분실':
             print("\n아이디, 패스워드 찾기")
-            lose = input("전화번호를 입력해주세요. > ")
-            for i in range(len(user_info)):
-                if lose == user_info[i][3]:
-                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
+            lose = int(input("전화번호를 입력해주세요. > "))
+            for search in user_info:
+                if lose == search[3]:
+                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(search[0], search[1], search[2]))
+                    return
+                else:
+                    print("일치하는 회원정보가 없습니다.\n")
+                    return
         
-        for i in range(5): 
-            if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
+        PW = input("PW를 입력해주세요 > ")
+
+        if PW == '분실':
+            print("\n아이디, 패스워드 찾기")
+            lose = int(input("전화번호를 입력해주세요. > "))
+            for search in user_info:
+                if lose ==search[3]:
+                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(search[0], search[1], search[2]))
+                    return
+                else:
+                    print("일치하는 회원정보가 없습니다.\n")
+                    return
+      
+        for search in user_info:
+            print(search)
+            if ID == search[1] and PW == search[2]:#아이디,패스워드 일치하면
                 print("로그인 되었습니다.")
                 time.sleep(0.5)
                 os.system('clear') 
                 while 1 : main_screen()
             else:
-                break
-
-        if ID == '분실' or PW == '분실':
-            print("\n아이디, 패스워드 찾기")
-            lose = input("전화번호를 입력해주세요. > ")
-            for i in range(len(user_info)):
-                if lose == user_info[i][3]:
-                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
-
+                pass
+  
     elif login_input == '2':        #회원가입
         
         name = input("이름을 입력해주세요. > ")
