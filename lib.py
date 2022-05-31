@@ -244,6 +244,7 @@ def book_return():
 
 def mine_info():
     global save_book
+    cur.execute("SELECT COUNT(*) FROM userinfo")
     print("=======나의정보=======")
     print("대여중인 도서 리스트")
     for i in range(len(BookList)):
@@ -258,8 +259,16 @@ def mine_info():
     user_input = input("정보 변경을 원하시나요? (y/n) >")
     if user_input == 'y':
         ID = input("ID를 입력해주세요. > ")
+        cur.execute(f"SELECT userName, phoneNum, userID, userPW FROM userinfo WHERE userID= ?", (ID,))
+        inID = print(cur.fetchall())
+        PW = input("PW를 입력해주세요. > ")
+        cur.execute(f"SELECT userName, phoneNum, userID, userPW FROM userinfo WHERE userPW= ?", (PW,))
+        inPW = print(cur.fetchall())
+        print(inPW)
+        print(inID)
         for i in range(len(user_info)):
-            if ID == user_info[i][0]:
+            print("확인용")
+            if inID == inPW:
                 change = input("비밀번호를 변경하시겠습니까. (y/n) > ")
                 if change == 'y':
                     change_PW = input("변결할 PW > ")
