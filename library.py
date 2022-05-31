@@ -1,3 +1,4 @@
+from select import select
 import sys
 import random
 import os
@@ -12,7 +13,6 @@ book_cnt = 0
 result=[] #검색결과 저장
 basket=[] #장바구니에 저장
 user_info =[]
-donation_list = [['앨리스 죽이기', '코바야시 야스미'], ['거울나라의 앨리스', '루이스 캐럴'], ['앨리스 지금이야', '김종원']]
 #배열 마지막, 1:대여가능 2:대여중
 BookList=[[1, '작별인사', '김영하', 1],
           [2, '이기적 유전자', '리처드 도킨스', 1],
@@ -25,7 +25,6 @@ BookList=[[1, '작별인사', '김영하', 1],
 def login():
     cur.execute("SELECT * FROM userinfo")
     user_info = cur.fetchall()
-    print(user_info)
 
     login_input = input("0: 종료하기  1: 로그인  2: 회원가입 > ")
     if login_input == '0':
@@ -82,25 +81,25 @@ def login():
         print("다시 입력하세요")
 
 def donation():  #기증
+    cur.execute("SELECT * FROM book")
+    don_book = cur.fetchall()
     while 1:
-        global donation_list
         donate_check =0
-        donate_book = input("기증할 책 이름을 입력해주세요. > ")
+        book_name = input("기증할 책 이름을 입력해주세요. > ")
+        book_writer = input("기증할 책의 저자 이름을 입력해주세요. >")
 
-        for i in range(len(donation_list)):
-            if donation_list[i][0] == donate_book:
-                print("{0} 기증했습니다.".format(donation_list[i][0]))
-                donate_check += 1    
-                last_num = BookList[-1][0]
-                last_num += 1
-                BookList.append(donation_list[i])
-                BookList[-1].insert(0, last_num)    
-                BookList[-1].append('1')
-                del donation_list[i] #기증한 책 도네이션 리스트에서 삭제
-                print("책리스트 확인")
-                print(BookList)
-                print("끝")
-                break
+        for search in don_book:
+            if search[1] == book_name:
+                if search[2] == book_writer:
+                    print("{0} 기증했습니다.".format(search[1]))
+                    donate_check += 1    
+                    last_num = don_book[-1][0]
+                    print(don_book[-1][0])
+                    last_num += 1
+                    print(last_num)
+                    cur.execute('insert into book values (?, ?, ?, ?)', (last_num, book_name, book_writer, 1))
+                    conn.commit()
+                    break
 
         if donate_check == 0:
             print("다시입력해주세요.")  
