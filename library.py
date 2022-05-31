@@ -8,7 +8,6 @@ import sqlite3
 conn = sqlite3.connect ('bookDB')
 cur = conn.cursor()
 
-save_book = []
 book_cnt = 0  
 result=[] #검색결과 저장
 basket=[] #장바구니에 저장
@@ -139,9 +138,6 @@ def SearchBookName(user_input):                      #책명 조회 함수
     for i in cur:
         if user_input in i:
             result.append(i)
-            # elif BookList[i][3] == 0:
-            #     print(BookList[i][1], end="")
-            #     print(" 대여중")
     ShoppingBasket()
 
 def SearchBookAuthor(user_input):                      #저자 조회 함수
@@ -169,10 +165,8 @@ def ShoppingBasket():                                #장바구니 추가 함수
             else:
                 print("잘못 입력하셨습니다.")
 
-
 def menu():                                             #조회 함수
-        print('1. 제목')
-        print('2. 작가')
+        print('1. 제목  2. 작가')
         user_input = input('선택: ') 
         if user_input == '1':
             user_input = input('제목: ')
@@ -183,32 +177,36 @@ def menu():                                             #조회 함수
         else:
             print("잘못 입력하셨습나다.")
 
-def book_return():
-    global save_book
+def book_return():  #반납
+    cur.execute("SELECT * FROM book")
+    turn_book = cur.fetchall()
+
     return_choice = input("1. 책제목  2. 도서 고유번호  > ")
     if return_choice == '1':
         re_book = input("반납할 책의 제목을 입력해주세요. > ")
-        for i in range(len(BookList)):
-            if re_book == BookList[i][1]:
-                if BookList[i][3] == 0: #대여중인 책일때
+        for search in turn_book:           
+            if re_book == search[1]:
+                print(search)
+                if search[3] == 0: #대여중인 책일때   
                     print("반납되었습니다.")
-                    save_book.append(BookList[i][1])
-                    BookList[i][3] = 1 
-                else:
-                    print("대여중인 책이 아닙니다.")
-                    break    
-
-    if return_choice == '2':
-        re_book_num = int(input("반납할 책의 고유번호를 입력해주세요. > "))
-        for i in range(len(BookList)):
-            if re_book_num == BookList[i][0]:
-                if BookList[i][3] == 0:
-                    print("반납되었습니다.")
-                    save_book.append(BookList[i][1])
-                    BookList[i][3] = 1 
+                    cur.execute("update book set 대여 = ? where 서명 = ?",(1, re_book))
                 else:
                     print("대여중인 책이 아닙니다.")
                     break 
+            else:
+                continue   
+
+    if return_choice == '2':
+        re_book_num = int(input("반납할 책의 고유번호를 입력해주세요. > "))
+        for search in turn_book:
+            if search[0] == re_book_num:
+                if search[3] == 0:
+                    print("반납되었습니다.")
+                    cur.execute("update book set 대여 = ? where 연번 = ?",(1, re_book_num)) 
+                    conn.commit()
+                    break
+                else:
+                    print("대여중인 책이 아닙니다.")
 
 def mine_info():
     global save_book
