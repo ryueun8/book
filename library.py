@@ -13,6 +13,7 @@ result=[] #검색결과 저장
 basket=[] #장바구니에 저장
 user_info =[]
 plus=0
+userID =''
 donation_list = [['앨리스 죽이기', '코바야시 야스미'], ['거울나라의 앨리스', '루이스 캐럴'], ['앨리스 지금이야', '김종원']]
 #배열 마지막, 1:대여가능 2:대여중
 BookList=[[1, '작별인사', '김영하', 1],
@@ -37,14 +38,19 @@ class information:
 
 
 def login():
+    global userID
     login_input = input("0: 종료하기  1: 로그인  2: 회원가입 > ")
     if login_input == '0':
         sys.exit(0)
 
     elif login_input == '1':    #로그인
+        
         print("ID,PW를 잊어버리셨으면 '분실'을 입력해주세요.")
         ID = input("ID를 입력해주세요 > ")
         PW = input("PW를 입력해주세요 > ")
+        cur.execute("SELECT userPW FROM userInfo where userID=?", (ID, ))
+        userPW = cur.fetchone()
+        #print(userPW) 테스트
         if ID == '분실' or PW == '분실':
             print("\n아이디, 패스워드 찾기")
             lose = input("전화번호를 입력해주세요. > ")
@@ -52,14 +58,25 @@ def login():
                 if lose == user_info[i][3]:
                     print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
         
-        for i in range(5): 
-            if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
-                print("로그인 되었습니다.")
-                time.sleep(0.5)
-                os.system('clear') 
-                while 1 : main_screen()
-            else:
-                break
+        if (PW,) == userPW:
+            print("로그인 되었습니다.")
+            time.sleep(0.5)
+            os.system('clear') 
+            userID=ID
+            while 1 : 
+                main_screen()
+        else:
+            print('잘못 입력하셨습니다')
+            time.sleep(1)
+            login()
+        # for i in range(5): 
+        #     if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
+        #         print("로그인 되었습니다.")
+        #         time.sleep(0.5)
+        #         os.system('clear') 
+        #         while 1 : main_screen()
+        #     else:
+        #         break
 
         if ID == '분실' or PW == '분실':
             print("\n아이디, 패스워드 찾기")
@@ -74,8 +91,8 @@ def login():
         phone = input("전화번호를 입력해주세요. > ")
         ID = input("ID를 입력해주세요 > ")
         PW = input("PW를 입력해주세요 > ")
-        # cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, phone, ID, PW))
-        # conn.commit()
+        cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, phone, ID, PW))
+        conn.commit()
         a = information()
         a.user_plus(ID, PW, name, phone)
 
@@ -110,26 +127,41 @@ def donation():  #기증
             break
 
 def rental(): #대여 함수
-    global book_cnt                      
+    global book_cnt
+    k=1                      
     print(basket)
+    print(userID)
     user_input = str(input('대여하시겠습니까? y/n  > '))
+    cur.execute("SELECT Num, Title, Author FROM book")
+    row=cur.fetchall()
     if user_input == 'y' or user_input == 'Y':
-        for i in range(0, len(BookList)):
-            for j in range(0, len(basket)):  
-                if basket[j] == BookList[i][1]:
-                    print(basket[j])
-                    BookList[i][3] = 0
-                    for k in range(len(BookList)):
-                        if BookList[k][3] == 0:
-                            book_cnt += 1
-                    if book_cnt > 3:
-                        print(book_cnt)
-                        print("3권 이상 대여할 수 없습니다.")
-                        BookList[i][1] == 1
-                    else:
-                        print("대여완료")
-                        del basket[:] 
-        print(BookList)  
+        for i in row:
+            for j in basket:
+                if i[0] == j[0]:
+                    data='book'+(str(k))
+                    ID_BookName = str(j[0])+'/'+j[1]
+                    print(data)
+                    print(ID_BookName)
+                    cur.execute("update book set Rental = '0' where Num=?", (j[0],))
+                    query = "update userInfo set %s = ? where userID = ?" %data
+                    cur.execute(query,(ID_BookName, userID))
+                    conn.commit()
+                    k+=1
+        del basket[:]              
+        #         if basket[j] == BookList[i][1]:
+        #             print(basket[j])
+        #             BookList[i][3] = 0
+        #             for k in range(len(BookList)):
+        #                 if BookList[k][3] == 0:
+        #                     book_cnt += 1
+        #             if book_cnt > 3:
+        #                 print(book_cnt)
+        #                 print("3권 이상 대여할 수 없습니다.")
+        #                 BookList[i][1] == 1
+        #             else:
+        #                 print("대여완료")
+        #                 del basket[:] 
+        # print(BookList)  
 
     elif user_input == 'n' or user_input == 'N':
         print('메인으로 돌아갑니다')
