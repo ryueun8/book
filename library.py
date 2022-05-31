@@ -39,86 +39,84 @@ class information:
 
 def login():
     global userID
+    cur.execute("SELECT * FROM userInfo")
+    user_info = cur.fetchall()
+
     login_input = input("0: 종료하기  1: 로그인  2: 회원가입 > ")
     if login_input == '0':
         sys.exit(0)
 
     elif login_input == '1':    #로그인
-        
         print("ID,PW를 잊어버리셨으면 '분실'을 입력해주세요.")
         ID = input("ID를 입력해주세요 > ")
-        PW = input("PW를 입력해주세요 > ")
-        cur.execute("SELECT userPW FROM userInfo where userID=?", (ID, ))
-        userPW = cur.fetchone()
-        #print(userPW) 테스트
-        if ID == '분실' or PW == '분실':
+
+        if ID == '분실':
             print("\n아이디, 패스워드 찾기")
-            lose = input("전화번호를 입력해주세요. > ")
-            for i in range(len(user_info)):
-                if lose == user_info[i][3]:
-                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
+            lose = int(input("전화번호를 입력해주세요. > "))
+            for search in user_info:
+                if lose == search[3]:
+                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(search[0], search[1], search[2]))
+                    return
+                else:
+                    print("일치하는 회원정보가 없습니다.\n")
+                    return
         
-        if (PW,) == userPW:
-            print("로그인 되었습니다.")
-            time.sleep(0.5)
-            os.system('clear') 
-            userID=ID
-            while 1 : 
-                main_screen()
-        else:
-            print('잘못 입력하셨습니다')
-            time.sleep(1)
-            login()
-        # for i in range(5): 
-        #     if ID == user_info[i][0] and PW == user_info[i][1]:#아이디,패스워드 일치하면
-        #         print("로그인 되었습니다.")
-        #         time.sleep(0.5)
-        #         os.system('clear') 
-        #         while 1 : main_screen()
-        #     else:
-        #         break
+        PW = input("PW를 입력해주세요 > ")
 
-        if ID == '분실' or PW == '분실':
+        if PW == '분실':
             print("\n아이디, 패스워드 찾기")
-            lose = input("전화번호를 입력해주세요. > ")
-            for i in range(len(user_info)):
-                if lose == user_info[i][3]:
-                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(user_info[i][2], user_info[i][0], user_info[i][1]))
-
+            lose = int(input("전화번호를 입력해주세요. > "))
+            for search in user_info:
+                if lose ==search[3]:
+                    print("{0}님의 ID와 PW는 {1}, {2}입니다".format(search[0], search[1], search[2]))
+                    return
+                else:
+                    print("일치하는 회원정보가 없습니다.\n")
+                    return
+      
+        for search in user_info:
+            print(search)
+            if ID == search[1] and PW == search[2]:#아이디,패스워드 일치하면
+                userID=ID
+                print("로그인 되었습니다.")
+                time.sleep(0.5)
+                os.system('clear') 
+                while 1 : main_screen()
+            else:
+                pass
+  
     elif login_input == '2':        #회원가입
         
         name = input("이름을 입력해주세요. > ")
         phone = input("전화번호를 입력해주세요. > ")
         ID = input("ID를 입력해주세요 > ")
         PW = input("PW를 입력해주세요 > ")
-        cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, phone, ID, PW))
+        cur.execute('insert into userInfo values (?, ?, ?, ?)', (name, ID, PW, phone))
         conn.commit()
-        a = information()
-        a.user_plus(ID, PW, name, phone)
 
     else:
         print("다시 입력하세요")
 
 def donation():  #기증
+    cur.execute("SELECT * FROM book")
+    don_book = cur.fetchall()
     while 1:
-        global donation_list
         donate_check =0
-        donate_book = input("기증할 책 이름을 입력해주세요. > ")
+        book_name = input("기증할 책 이름을 입력해주세요. > ")
+        book_writer = input("기증할 책의 저자 이름을 입력해주세요. >")
 
-        for i in range(len(donation_list)):
-            if donation_list[i][0] == donate_book:
-                print("{0} 기증했습니다.".format(donation_list[i][0]))
-                donate_check += 1    
-                last_num = BookList[-1][0]
-                last_num += 1
-                BookList.append(donation_list[i])
-                BookList[-1].insert(0, last_num)    
-                BookList[-1].append('1')
-                del donation_list[i] #기증한 책 도네이션 리스트에서 삭제
-                print("책리스트 확인")
-                print(BookList)
-                print("끝")
-                break
+        for search in don_book:
+            if search[1] == book_name:
+                if search[2] == book_writer:
+                    print("{0} 기증했습니다.".format(search[1]))
+                    donate_check += 1    
+                    last_num = don_book[-1][0]
+                    print(don_book[-1][0])
+                    last_num += 1
+                    print(last_num)
+                    cur.execute('insert into book values (?, ?, ?, ?)', (last_num, book_name, book_writer, 1))
+                    conn.commit()
+                    break
 
         if donate_check == 0:
             print("다시입력해주세요.")  
@@ -225,32 +223,37 @@ def menu():                                             #조회 함수
         else:
             print("잘못 입력하셨습나다.")
 
-def book_return():
-    global save_book
+def book_return():  #반납
+    cur.execute("SELECT * FROM book")
+    turn_book = cur.fetchall()
+
     return_choice = input("1. 책제목  2. 도서 고유번호  > ")
     if return_choice == '1':
         re_book = input("반납할 책의 제목을 입력해주세요. > ")
-        for i in range(len(BookList)):
-            if re_book == BookList[i][1]:
-                if BookList[i][3] == 0: #대여중인 책일때
+        for search in turn_book:           
+            if re_book == search[1]:
+                print(search)
+                if search[3] == 0: #대여중인 책일때   
                     print("반납되었습니다.")
-                    save_book.append(BookList[i][1])
-                    BookList[i][3] = 1 
-                else:
-                    print("대여중인 책이 아닙니다.")
-                    break    
-
-    if return_choice == '2':
-        re_book_num = int(input("반납할 책의 고유번호를 입력해주세요. > "))
-        for i in range(len(BookList)):
-            if re_book_num == BookList[i][0]:
-                if BookList[i][3] == 0:
-                    print("반납되었습니다.")
-                    save_book.append(BookList[i][1])
-                    BookList[i][3] = 1 
+                    cur.execute("update book set Reantal = ? where Author = ?",(1, re_book))
                 else:
                     print("대여중인 책이 아닙니다.")
                     break 
+            else:
+                continue   
+
+    if return_choice == '2':
+        re_book_num = int(input("반납할 책의 고유번호를 입력해주세요. > "))
+        for search in turn_book:
+            if search[0] == re_book_num:
+                if search[3] == 0:
+                    print("반납되었습니다.")
+                    cur.execute("update book set Rental = ? where Num = ?",(1, re_book_num)) 
+                    conn.commit()
+                    break
+                else:
+                    print("대여중인 책이 아닙니다.")
+
 
 def mine_info():
     global save_book
