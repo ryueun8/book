@@ -183,9 +183,14 @@ def rental(): #대여 함수
 def SearchBookName(user_input):                      #책명 조회 함수
     arg ='%' + user_input +'%'
     cur.execute("SELECT Num, Title, Author FROM book WHERE Rental=1 and Title like ?", (arg, ))
-    row=cur.fetchall()
-    for i in row:
-        result.append(i)
+    rows = cur.fetchall()
+    for row in rows:
+        row = list(row)
+        row[0] = str(row[0])
+        row = '/'.join(row) 
+        print(row)
+    #for i in row:
+    #   result.append(i)
             # elif BookList[i][3] == 0:
             #     print(BookList[i][1], end="")
             #     print(" 대여중")
@@ -207,7 +212,7 @@ def SearchBookAuthor(user_input):  #저자 조회 함수
     ShoppingBasket()
 
 def ShoppingBasket():                                #장바구니 추가 함수
-    print(result)
+    #print(result)
     while 1:
         user_input = int(input('장바구니에 추가할 책의 번호를 입력해주세요 '))
         for i in range(0, len(result)):
