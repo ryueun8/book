@@ -203,12 +203,13 @@ def ShoppingBasket():                                #장바구니 추가 함수
 
 
 def menu():                                             #조회 함수
-        print("'제목조회'', '작가조회'")
+        print("1. 제목으로 조회하기")
+        print("2. 작가이름으로 조회하기")
         user_input = input('원하는 기능을 입력해주세요. > ') 
-        if user_input == '제목조회':
+        if user_input == '1':
             user_input = input('조회할 책 제목을 입력해주세요: ')
             SearchBookName(user_input)
-        elif user_input == '작가조회':
+        elif user_input == '2':
             user_input = input('조회할 책의 작가를 입력해주세요: ')
             SearchBookAuthor(user_input)
         else:
@@ -339,6 +340,8 @@ def mine_info():
             break    
         print(all_print[1])
         
+    print("연체중인 도서 리스트")
+        
     print("")
     user_input = input("정보 변경을 원하시나요? (y/n) >")
     if user_input == 'y':
@@ -378,7 +381,7 @@ def main_screen():
 
     chuchoun()
     os.system('clear')
-    print("'조회', '대여', '반납', '기증', '나의정보'")
+    print("'조회', '대여', '반납', '기증', '나의정보', '나가기'")
     select = input("원하는 기능을 입력해주세요. > ")
     if select == '조회':
         menu()
@@ -390,6 +393,8 @@ def main_screen():
         donation()
     elif select == '나의정보':
         mine_info()
+    elif select == '나가기':
+        login()
     else:
         print("다시 입력해주세요.")
 
